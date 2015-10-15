@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>reveal.js - The HTML Presentation Framework</title>
+
+    <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+    <meta name="author" content="Hakim El Hattab">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/black.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+        <section>
+          <h1>CoffeeScript vs ES6</h1>
+          <p>
+            <small>Martin Rodriguez</small>
+          </p>
+
+          <aside class="notes">
+            <p>Main purpose of this lightning talk is to show you how much progress ES6 has done, at the point that we should ask ourselves if CoffeeScript is still the best option or not whenever we need to use JavaScript.</p>
+          </aside>
+        </section>
+
+        <section>
+          <a href="http://coffeescript.org/" target="_blank"><img src="img/coffeescript.jpg" alt="CoffeeScript" style="border: none; max-width: 90%;"></a>
+
+          <aside class="notes">
+            <p>For those who doesn't know what CoffeeScript is, it is a little ruby-like-syntax language that compiles into JS.</p>
+
+            <p>It's been so succesfull that it comes installed by default on every new rails app that we create.</p>
+          </aside>
+        </section>
+
+        <section>
+          <a href="https://babeljs.io/" target="_blank"><img src="img/babeljs.jpg" alt="Babel.js" style="border: none;"></a>
+
+          <aside class="notes">
+            <p>Babeljs or 6to5 is a plugin that allows us to write ES6 code and comes with a set of syntax transformers that translate to ES5.</p>
+
+            <p>Many JS frameworks come with this plugin out of the box, such as Ember.js. The main advantage of using it is that whenver ES6 becomes the standard, the same code we used will be the final code (no transformation will be needed).</p>
+          </aside>
+        </section>
+
+        <section>
+          <h2>Classes</h2>
+          <p>CoffeeScript</p>
+          <pre class="fragment" style="max-width: 48%; font-size: 18px; float: left;">
+            <code data-trim class="coffeescript">
+class Person
+  constructor: (@firstName, @lastName) -&gt;
+
+  name: -&gt;
+    "#{@first_name} #{@last_name}"
+
+  setName: (name) -&gt;
+    names = name.split " "
+    @firstName = names[0]
+    @lastName = names[1]
+
+martin = new Person "Martin", "Rodriguez"
+martin.setName "Martin Rodriguez"
+console.log martin.name()
+            </code>
+          </pre>
+
+          <pre class="fragment" style="max-width: 48%; font-size: 14px; float: right;">
+            <code data-trim class="javascript" style="max-height: inherit;">
+var Person;
+
+Person = (function() {
+  var martin;
+
+  function Person(firstName, lastName) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+  }
+
+  Person.prototype.name = function() {
+    return this.first_name + " " + this.last_name;
+  };
+
+  Person.prototype.setName = function(name) {
+    var names;
+    names = name.split(" ");
+    this.firstName = names[0];
+    return this.lastName = names[1];
+  };
+
+  return Person;
+})();
+
+martin = new Person("Martin", "Rodriguez");
+martin.setName("Martin Rodriguez");
+console.log(martin.name());
+            </code>
+          </pre>
+
+          <aside class="notes">
+            <p>Both CoffeeScript and ES6 have class support. Let’s look at a CoffeeScript class compared to the ES6 equivalent.</p>
+
+            <p>CoffeeScript allows us to take advantage of:</p>
+
+            <ul>
+              <li>Setting instance variables from the parameters</li>
+              <li>String interpolation</li>
+              <li>Calling functions without parentheses.</li>
+            </ul>
+          </aside>
+        </section>
+
+        <section>
+          <h3>Classes</h3>
+          <p>ES6</p>
+
+          <pre class="fragment">
+            <code data-trim class="javascript" style="font-size: 15px; max-height: inherit;">
+class Person {
+  constructor(firstName, lastName) {
+    [this.firstName, this.lastName] = name.split(" ");
+  }
+
+  get name() {
+    return `${this.firstName} ${this.lastName}`;
+  }
+
+  set name(name) {
+    [this.firstName, this.lastName] = name.split(" ");
+  }
+}
+
+var martin = new Person("Martin", "Rodriguez");
+martin.name = "Martin Rodriguez"
+console.log(martin.name);
+            </code>
+          </pre>
+
+          <aside class="notes">
+            <p>With ES6 we take advantage of classes, getters and setters.</p>
+
+            <ul>
+              <li>There are no semicolons after the function name</li>
+              <li>The function keyword is omitted.</li>
+              <li>There are no commas after each function.</li>
+            </ul>
+          </aside>
+        </section>
+
+        <section>
+          <h2>String Interpolation</h2>
+
+          <div class="fragment">
+            <small>JavaScript</small>
+            <pre style="margin: 0;">
+              <code data-trim class="javascript" style="font-size: 15px;">
+"JavaScript strings can only span a single line " +
+"and interpolation isn't possible"
+              </code>
+            </pre>
+          </div>
+
+          <div class="fragment">
+            <small>CoffeeScript</small>
+            <pre style="margin: 0;">
+              <code data-trim class="coffeescript" style="font-size: 15px;">
+"CoffeeScript allows multi-line strings
+ with
+ interpolation like 1 + 1 = #{1 + 1}
+"
+              </code>
+            </pre>
+          </div>
+
+          <div class="fragment">
+            <small>ES6</small>
+            <pre style="margin: 0;">
+              <code data-trim class="javascript" style="font-size: 15px;">
+`Template strings allow strings to span
+ multiple lines and allow interpolation like 1 + 1 = ${1 + 1}
+`
+              </code>
+            </pre>
+          </div>
+
+          <aside class="notes">
+            <p>This feels much cleaner than the string concatenation we were doing before and gets us closer to the CoffeeScript example.</p>
+          </aside>
+        </section>
+
+        <section>
+          <h2>Fat Arrows</h2>
+
+          <div class="fragment">
+            <small>JavaScript</small>
+            <pre style="margin: 0;">
+              <code data-trim class="javascript" style="font-size: 15px;">
+var self = this;
+$("button").on("click", function() {
+  // do something with `self`
+});
+              </code>
+            </pre>
+          </div>
+
+          <div class="fragment">
+            <small>CoffeeScript</small>
+            <pre style="margin: 0;">
+              <code data-trim class="coffeescript" style="font-size: 15px;">
+$("button").on "click", =&gt;
+  // do something with `this`
+              </code>
+            </pre>
+          </div>
+
+          <div class="fragment">
+            <small>ES6</small>
+            <pre style="margin: 0;">
+              <code data-trim class="javascript" style="font-size: 15px;">
+$("button").on("click", () =&gt; {
+  // do something with `this`
+});
+              </code>
+            </pre>
+          </div>
+
+          <aside class="notes">
+            <p>Fat arrows allow us to bind a function to the current value of this. First, let’s take a look at how we can handle this without a fat arrow.</p>
+
+            <p>With JavaScript we have to keep a reference to the current value of this when defining the function.</p>
+
+            <p>CoffeeScript fat arrows can omit arguments and parentheses entirely.</p>
+
+            <p>ES6 fat arrows require the parentheses with or without arguments</p>
+          </aside>
+        </section>
+
+        <section>
+          <h2>Default Arguments</h2>
+
+          <div class="fragment">
+            <small>JavaScript</small>
+            <pre style="margin: 0;">
+              <code data-trim class="javascript" style="font-size: 15px;">
+var hello = function (name) {
+  name ||= 'Martin';
+  console.log(name);
+}
+              </code>
+            </pre>
+          </div>
+
+          <div class="fragment">
+            <small>CoffeeScript</small>
+            <pre style="margin: 0;">
+              <code data-trim class="coffeescript" style="font-size: 15px;">
+hello = (name = "Martin") -&gt;
+  console.log name
+              </code>
+            </pre>
+          </div>
+
+          <div class="fragment">
+            <small>ES6</small>
+            <pre style="margin: 0;">
+              <code data-trim class="javascript" style="font-size: 15px;">
+var hello = function (name = "Martin") {
+  console.log(name);
+}
+              </code>
+            </pre>
+          </div>
+
+          <aside class="notes">
+          </aside>
+        </section>
+
+        <section>
+          <h2>Splats</h2>
+
+          <div class="fragment">
+            <small>CoffeeScript</small>
+            <pre style="margin: 0;">
+              <code data-trim class="coffeescript" style="font-size: 15px;">
+materials = (first, second, others...) -&gt;
+  ...
+              </code>
+            </pre>
+          </div>
+
+          <div class="fragment">
+            <small>ES6</small>
+            <pre style="margin: 0;">
+              <code data-trim class="javascript" style="font-size: 15px;">
+let materials = function (first, second, ...others) {
+  ...
+}
+              </code>
+            </pre>
+          </div>
+
+          <aside class="notes">
+            <p>In CoffeeScript we have splats, in ES6 we know them as variadic functions. Basically, we can pass any extra argument to a method as an array of `others`.</p>
+          </aside>
+        </section>
+
+        <section>
+          <h2>Destructuring</h2>
+
+          <div class="fragment">
+            <small>CoffeeScript</small>
+            <pre style="margin: 0;">
+              <code data-trim class="coffeescript" style="font-size: 15px;">
+[a, b, ...] = [1, 2, 3, 4, 5]
+              </code>
+            </pre>
+          </div>
+
+          <div class="fragment">
+            <small>ES6</small>
+            <pre style="margin: 0;">
+              <code data-trim class="javascript" style="font-size: 15px;">
+let [a, b, ...rest] = [1, 2, 3, 4, 5]
+              </code>
+            </pre>
+          </div>
+
+          <aside class="notes">
+            <p>Destructuring makes it possible to extract data from arrays or objects using a syntax that mirrors the construction of array and object literals.</p>
+          </aside>
+        </section>
+
+        <section>
+          <h2>References/Tools</h2>
+
+          <ul>
+            <li><a href="https://robots.thoughtbot.com/replace-coffeescript-with-es6" target="_blank">Replace CoffeeScript with ES6 (Thoughtbot)</a></li>
+            <li><a href="https://leanpub.com/understandinges6/read/" target="_blank">Understanding ECMAScript 6</a></li>
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">Mozilla Developers - JS</a></li>
+            <li><a href="http://javascriptweekly.com/" target="_blank">JavaScript Weekly</a></li>
+            <li><a href="https://babeljs.io/" target="_blank">Babel.js</a></li>
+          </ul>
+        </section>
+
+        <section>
+          <h1>Thanks!!</h1>
+          <img src="img/thanks.jpg" alt="Thanks">
+        </section>
+
+      </div>
+
+      <script src="lib/js/head.min.js"></script>
+      <script src="js/reveal.js"></script>
+
+      <script>
+
+        // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'convex', // none/fade/slide/convex/concave/zoom
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'plugin/zoom-js/zoom.js', async: true },
+          { src: 'plugin/notes/notes.js', async: true }
+        ]
+      });
+
+      </script>
+
+    </body>
+  </html>
