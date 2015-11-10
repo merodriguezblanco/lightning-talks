@@ -1,0 +1,24 @@
+{
+  "name": "BowerAndRails",
+  "authors": [
+    "Martin Rodriguez <merodriguezblanco@gmail.com>"
+  ],
+  "description": "Testing Bower on Rails 4",
+  "main": "",
+  "moduleType": [
+    "amd"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "vendor/assets/components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "backbone": "~1.2.3"
+  }
+}
