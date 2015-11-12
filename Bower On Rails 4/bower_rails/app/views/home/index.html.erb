@@ -1,2 +1,30 @@
-<h1>Home#index</h1>
-<p>Find me in app/views/home/index.html.erb</p>
+<h1>Bower on Rails 4</h1>
+<h2>External libraries versions:</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Library</th>
+      <th>Version</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Backbone.js</td>
+      <td id="backbone-version"></td>
+    </tr>
+    <tr>
+      <td>Underscore.js</td>
+      <td id="underscore-version"></td>
+    </tr>
+  </tbody>
+</table>
+
+<%= content_for :javascripts do %>
+  <script>
+    $(function () {
+      $('#backbone-version').html(Backbone.VERSION);
+      $('#underscore-version').html(_.VERSION);
+    });
+  </script>
+<% end %>

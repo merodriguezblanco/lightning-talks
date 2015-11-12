@@ -47,6 +47,7 @@
           </p>
 
           <aside class="notes">
+            <p>Main purpose of this lightning talk is to give a different approach when trying to manage frontend libraries on your Rails application</p>
           </aside>
         </section>
 
@@ -61,6 +62,7 @@
           </table>
 
           <aside class="notes">
+            <p>For those who work with big frontend applications, probably you already know Bower. Bower is a libraries dependency manager tool for front-end applications that allows us to easily manage versioning an dependencies.</p>
           </aside>
         </section>
 
@@ -85,8 +87,8 @@ bundle update &lt;gem name&gt;
           </pre>
 
           <aside class="notes">
-            <p>Since you are already using Rails, you are familiar with the whole adding gem to your Gemfile and firing off bundle install.</p>
-            <p>If you want to update a gem or all of them you simple run bundle update or bundle update "gem name" and you are good to go. But what if you want to upgrade Bootstrap, Angular, Jquery or any other client side libraries or frameworks?</p>
+            <p>Since you are already using Rails, you are familiar with adding a gem to your Gemfile and firing off bundle install command.</p>
+            <p>If you want to update a gem you simply run bundle update or bundle update "gem name" and you are good to go. But what if you want to upgrade one of your client side libraries or plugins such as Bootstrap, Angular, Jquery or some other?</p>
             <p>Bower, through its command line interface enables you to search, install, update and uninstall web assets like JavaScript, HTML and CSS. It also has it's own Gemfile &amp; Gemfile.lock called bower.json.</p>
           </aside>
         </section>
@@ -104,7 +106,7 @@ bundle update &lt;gem name&gt;
 
           <aside class="notes">
             <ul>
-              <li>It saves you time. No more going back to the JQuery, Angular, backbone website / repo to download the files.</li>
+              <li>It saves you time. No more going back to the website of each plugin: JQuery, Angular, Backbone to download the files.</li>
               <li>Makes update super easy. If a new version of a library is released with security/bug fix or new features you just have to run bower update in order to install the new version and all of its (new) dependencies.</li>
               <li>Semantic versioning is used to help define a range of acceptable versions for a dependency, which makes it easy to update to newer versions within the defined range.</li>
               <li>No need to commit dependencies to version control since all the info is stored in bower.json.</li>
@@ -127,8 +129,9 @@ npm install -g bower
           </ul>
 
           <aside class="notes">
+          <p>There are two ways of including bower in your Rails application: one would be installing a gem such as bower-rails (which will do much of the work for us). The other approach is to install bower using npm, which is the approach I'm taking on this presentation so that you get familiar with some of the bower concepts.
           <ol>
-            <li><strong>Installing Bower</strong>Since you are already running Rails 4, you've already got Node and NPM up and running on your machine. If not, Google is your friend. To install Bower simply run: npm install -g bower.  We are using -g to install it globally so you can continue using it in all of your future projects.</li>
+            <li>Since you are already running Rails 4, you should already have  Node and NPM up and running on your machine. If not, Google is your friend. To install Bower simply run: npm install -g bower.  We are using -g to install it globally so you can continue using it in all of your future projects.</li>
           </ol>
           </aside>
         </section>
@@ -158,7 +161,7 @@ bower init      # creates bower.json
 
           <aside class="notes">
             <ul>
-              <li><strong>Configuring bower</strong>By default Bower install the components (what it calls JS/CSS libraries) in your current directory which doesn't really play with the standard Rails folder hierarchy. To change that, simply create a .bowerrc (bower's config file. Read more about it here) file at the root of your Rails app and add this. This will tell Bower to save all of the component files in that directory which follow Rails' convention on storing assets.
+              <li>By default Bower installs the components (what it calls JS/CSS libraries) in your current directory which doesn't really play with the standard Rails folder hierarchy. To change that, simply create a .bowerrc (bower's config file.) the root of your Rails app and add the following JSON in it. This will tell Bower to save all of the libraries files inside the vendor directory which follow Rail's convention on storing assets.
               </li>
               <li>From the root of your Rails app, run bower init to create your bower.json file. This will ask you a couple of questions about your apps so go ahead and enter it.</li>
             </ul>
@@ -174,33 +177,36 @@ bower init      # creates bower.json
                 <code data-trim class="json">
 {
   "name": "BowerAndRails",
-  "version": "0.0.1",
-  "authors": ["Syl &lt;nop@nope.com&gt;"],
-  "description": "Tutorial about Bower and Rails",
+  "authors": [
+    "Martin Rodriguez &lt;merodriguezblanco@gmail.com&gt;"
+  ],
+  "description": "Testing Bower on Rails 4",
+  "main": "",
+  "moduleType": [
+    "amd"
+  ],
   "license": "MIT",
-  "homepage": "http://mycoolhomepage.com",
-  "ignore": [
-              "**/.*",
-              "node_modules",
-              "bower_components",
-              "test",
-              "tests"
-            ],
+  ...
   "dependencies": {
-                    "angular": "~1.2.16"
-                  }
+    "backbone": "~1.2.3"
+  }
 }
                 </code>
               </pre>
             </li>
-            <li class="fragment">bower install</li>
+            <li class="fragment">
+              <pre style="width: 100%; box-shadow: none;">
+                <code data-trim class="shell">
+bower install
+                </code>
+              </pre>
+            </li>
           </ul>
 
           <aside class="notes">
             <ul>
-              <li>From the root of your Rails app, run bower init to create your bower.json file. This will ask you a couple of questions about your apps so go ahead and enter it.</li>
               <li>Depending on your answers, your bower.json should looks something like this:</li>
-              <li>Now if I run bower install, it will pull Angular 1.2.16 from the Github repo into vendor/assets/components</li>
+              <li>Now if I run bower install, it will pull Backbone v1.2.3 from the Github repo into vendor/assets/components and underscore js which is one library that Backbone depends on.</li>
             </ul>
           </aside>
         </section>
@@ -220,15 +226,8 @@ config.assets.paths &lt;&lt; Rails.root.join('vendor', 'assets', 'components')
               <pre style="width: 100%; box-shadow: none;">
                 <code data-trim class="rails">
 # app/assets/javascripts/application.js
-//= require angular/angular
-                </code>
-              </pre>
-            </li>
-            <li>
-              <pre style="width: 100%; box-shadow: none;">
-                <code data-trim class="rails">
-# app/assets/stylesheets/application.css
-*= require bootstrap/dist/css/bootstrap
+//= require underscore/underscore
+//= require backbone/backbone
                 </code>
               </pre>
             </li>
@@ -236,23 +235,25 @@ config.assets.paths &lt;&lt; Rails.root.join('vendor', 'assets', 'components')
 
           <aside class="notes">
             <ul>
-              <li>Now that Bower is installed and working, we just need to make sure that Rails play nice with it. To do so, head to your /config/application.rb file so we can let the asset pipeline about it. Simple add the following line to your file and save it.</li>
-              <li>Finally, to require the freshly downloaded components, open up application.js in /app/assets/javascripts and require the necessary JS file like you would usually do. In my example with Angular, I do so by adding this one line to it.</li>
-              <li>Similar, for CSS frameworks and libraries like Bootstrap you can pop in the following line to application.css in /app/assets/css.</li>
+              <li>Now that Bower is installed and working, we just need to make sure that Rails plays nice with it. To do so, head to your /config/application.rb file so we can let the asset pipeline know about it. Simply add the following line to your file and save it.</li>
+              <li>Finally, to require the freshly downloaded components, open up application.js in /app/assets/javascripts and require the necessary JS files installed by bower like you would usually do. In my example with Backbone, I do so by adding these two lines to it.</li>
               <li>That's it! You can now use Bower to manage all of the 3rd party CSS &amp; Javascript libraries you wan to use in your project and Rails' asset pipeline will take care of the rest for you.</li>
             </ul>
+            <p>The approach that the bower-rails gem uses is similar, but it prevents us from some steps such as creating the .bowerrc file.
           </aside>
         </section>
 
         <section data-background="#f1f075">
           <h2>Summary</h2>
-          <ul>
-            <li class="fragment">Stop using gemified javascript &amp; CSS libraries</li>
-            <li class="fragment">Stop the asset pipeline minimizing the gemified libraries</li>
-            <li class="fragment">Stop missing out of the release pace of your components</li>
-          </ul>
+          <p>Bower: list, search, install, update front-end dependencies like you would do for your ruby gems.</p>
 
           <aside class="notes">
+            <p>Thanks Bower component management, you can now list, search, install and update your front end dependencies like you would do for your ruby gems.</p>
+            <ul>
+              <li>Stop using gemified javascript &amp; CSS libraries</li>
+              <li>Stop the asset pipeline minimizing the gemified libraries</li>
+              <li>Stop missing out of the release pace of your components</li>
+            </ul>
           </aside>
         </section>
 
@@ -261,7 +262,8 @@ config.assets.paths &lt;&lt; Rails.root.join('vendor', 'assets', 'components')
 
           <ul>
             <li><a href="http://bower.io/" target="_blank">Bower</a></li>
-            <li><a href="http://dotwell.io/taking-advantage-of-bower-in-your-rails-4-app/" target="_blank"> Taking advantage of Bower in Rails 4</a></li>
+            <li><a href="https://github.com/rharriso/bower-rails/">bower-rails gem</a></li>
+            <li><a href="https://www.npmjs.com/" target="_blank">npm</a></li>
             <li><a href="https://leanpub.com/understandinges6/read/" target="_blank">Understanding ECMAScript 6</a></li>
           </ul>
         </section>
