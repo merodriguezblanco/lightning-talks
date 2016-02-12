@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>rvm</title>
+
+    <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+    <meta name="author" content="Hakim El Hattab">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/black.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+        <section data-background="#3887be">
+          <h1>RVM</h1>
+          <p>
+            <small>Martin Rodriguez</small>
+          </p>
+        </section>
+
+        <section data-background="#3bb2d0" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">Introduction</h2>
+
+          <aside class="notes">
+            <p>It often happens that we are working on several rails projects and they use different versions of Ruby.</p>
+            <p>So, it would be very helpful to have a tool that allows us to easily switch the ruby version between projects!</p>
+            <p>Here is when Ruby Version Management (or RVM) comes to the resque! RVM is a command-line tool allows us to easily install, manage, and work with multiple versions of ruby.</p>
+          </aside>
+        </section>
+
+        <section data-background="#56b881" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">Installation</h2>
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="shell">
+curl -L https://get.rvm.io | bash -s stable
+            </code>
+          </pre>
+
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="shell">
+curl -L https://get.rvm.io | bash -s stable --ruby --rails
+            </code>
+          </pre>
+
+          <aside class="notes">
+            <p>Installing RVM from the command-line is very simple using the curl command. We can also pass some flags as well.</p>
+            <p>For example, the --ruby flag installs the latest ruby version, and the --rails flag installs the latest rails version as well.</p>
+          </aside>
+        </section>
+
+
+        <section data-background="#f1f075">
+          <h2>Usage</h2>
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="shell">
+$ rvm [options] command
+            </code>
+          </pre>
+
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="shell">
+$ rvm help
+            </code>
+          </pre>
+
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="shell">
+$ rvm help list
+            </code>
+          </pre>
+
+          <aside class="notes">
+            <p>Once we have RVM installed, we should have the rvm command available on the terminal</p>
+            <p>The syntax for the RVM command is the following: rvm [options] command</p>
+            <p>For example, rvm help displays information on how to use rvm</p>
+            <p>If we would like help on a specific command, we can reference it after the "help" to get more detailed instructions</p>
+          </aside>
+        </section>
+
+        <section data-background="#8a8acb" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">Install and uninstall Rubies</h2>
+
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="shell">
+$ rvm list known
+# MRI Rubies
+[ruby-]1.8.6[-p420]
+[ruby-]1.8.7[-head] # security released on head
+[ruby-]1.9.1[-p431]
+[ruby-]1.9.2[-p330]
+[ruby-]1.9.3[-p551]
+[ruby-]2.0.0[-p643]
+[ruby-]2.1.4
+[ruby-]2.1[.5]
+[ruby-]2.2[.1]
+[ruby-]2.2-head
+ruby-head
+...
+            </code>
+          </pre>
+
+          <aside class="notes">
+            <p>Let's suppose that we want to list all the Ruby versions (or Rubies) are available to install. We can use rvm list known, and we'll get a list of them</p>
+          </aside>
+        </section>
+
+        <section data-background="#8a8acb" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">Install Rubies</h2>
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="shell">
+$ rvm install 2.0.0-p576
+            </code>
+          </pre>
+
+          <aside class="notes">
+            <p>Once we decide what version we want to install, we can install it with the following command: rvm install 2.0.0-p576</p>
+          </aside>
+        </section>
+
+        <section data-background="#8a8acb" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">Uninstall Rubies</h2>
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="shell">
+$ rvm uninstall 2.0.0-p576
+            </code>
+          </pre>
+
+          <aside class="notes">
+            <p>If we ever wish to uninstall a version of Ruby, we can do this simply by typing:</p>
+          </aside>
+        </section>
+
+        <section data-background="#3bb2d0" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">How to switch rubies</h2>
+
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="shell">
+$ rvm list
+rvm rubies
+
+=&gt; ruby-2.0.0-p576 [ x86_64 ]
+   ruby-2.0.0-p643 [ x86_64 ]
+   ruby-2.1.2 [ x86_64 ]
+ * ruby-2.2.1 [ x86_64 ]
+   ruby-2.2.2 [ x86_64 ]
+   ruby-2.2.3 [ x86_64 ]
+
+# =&gt; - current
+# =* - current &amp;&amp; default
+#  * - default
+            </code>
+          </pre>
+
+          <aside class="notes">
+            <p>Once we have installed a few versions of Ruby, we can list them on the terminal with the rvm list command</p>
+            <p>As we can see, RVM gives us a handy guide to tell us which are the current and the default Ruby versions. In this case, we have 6 versions of ruby installed, and the 2.0.0-p576 is the version we are using for this project.</p>
+          </aside>
+        </section>
+
+        <section data-background="#3bb2d0" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">How to switch rubies</h2>
+
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="shell">
+$ rvm use 2.2.3
+Using /Users/Martin/.rvm/gems/ruby-2.2.3
+            </code>
+          </pre>
+
+          <aside class="notes">
+            <p>Let's suppose we want to  switch to a different version, we can do so by typing: rvm use 2.2.3</p>
+          </aside>
+        </section>
+
+        <section data-background="#56b881" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">How to use gemsets</h2>
+
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="shell">
+$ rvm gemset list
+            </code>
+          </pre>
+
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="shell">
+$ rvm gemset list_all
+            </code>
+          </pre>
+
+          <aside class="notes">
+            <p>So far we know how to install different ruby versions using rvm. But it is also possible to install different versions of a gem for the same Ruby version. RVM provides gemsets, which basically are separate gem directories, so the gems in one gemset do not conflict with the gems in another gemset..</p>
+            <p>To see the available gemsets for the current Ruby, we can type: rvm gemset list</p>
+            <p>We can also see all the gems installed for all the Ruby versions on our machine by typing: rvm gemset list_all</p>
+          </aside>
+        </section>
+
+        <section data-background="#ee8a65" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">How to automate our environment</h2>
+
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="shell">
+.
+├── .ruby-version   &lt;=====
+├── .ruby-gemset   &lt;=====
+├── Gemfile
+├── Gemfile.lock
+├── README.md
+├── Rakefile
+├── app
+├── bin
+├── config
+├── config.ru
+├── coverage
+├── db
+├── deploy
+├── lib
+├── log
+├── npm-debug.log
+├── public
+├── script
+├── spec
+├── tmp
+└── vendor
+            </code>
+          </pre>
+
+          <aside class="notes">
+            <p>We can create project-specific configurations that specify what Ruby version and gemset to use by creating a file with a specific name at the root of our project directory.</p>
+            <p>This eliminates the need to manually keep track of the ruby version we have active.</p>
+            <p>We can create this file with the name .rvmrc or .ruby-version</p>
+          </aside>
+        </section>
+
+        <section data-background="#ee8a65" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">How to automate our environment</h2>
+
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="shell">
+# .ruby-version
+ruby-2.2.3
+
+
+# .ruby-gemset
+gemset-name
+            </code>
+          </pre>
+
+          <aside class="notes">
+            <p>Inside this file, we can put the ruby version we want to use, and next time we navigate to the project directory this version of ruby will be automatically selected.</p>
+          </aside>
+        </section>
+
+        <section data-background="#56b881" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">Conclusion</h2>
+
+          <aside class="notes">
+            <p>As we can see, RVM is a flexible tool that can be used to manage projects and entire Ruby environments. We can use RVM to configure development conditions, server installations, and even to deploy our application.</p>
+          </aside>
+        </section>
+
+        <section data-background="#ee6565" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">Alternatives to RVM</h2>
+
+          <ul>
+            <li class="fragment">rbenv</li>
+            <li class="fragment">chruby</li>
+            <li class="fragment">ry</li>
+          </ul>
+
+          <aside class="notes">
+            <p>RVM is not the only ruby version management tool that exists, we can also choose another one that suits best our needs such as: rbenv, chruby or ry</p>
+          </aside>
+        </section>
+
+        <section>
+          <h2>References/Tools</h2>
+
+          <ul>
+            <li><a href="https://rvm.io/" target="_blank">RVM official website</a></li>
+            <li><a href="https://github.com/rvm/rvm" target="_blank">RVM</a></li>
+            <li><a href="http://railscasts.com/episodes/200-rails-3-beta-and-rvm" target="_blank">RVM RailsCast</a></li>
+            <li><a href="https://github.com/rbenv/rbenv" target="_blank">rbenv</a></li>
+            <li><a href="https://github.com/postmodern/chruby" target="_blank">chruby</a></li>
+            <li><a href="https://github.com/jneen/ry" target="_blank">ry</a></li>
+          </ul>
+        </section>
+
+      </div>
+
+      <script src="lib/js/head.min.js"></script>
+      <script src="js/reveal.js"></script>
+
+      <script>
+
+        // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'convex', // none/fade/slide/convex/concave/zoom
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'plugin/zoom-js/zoom.js', async: true },
+          { src: 'plugin/notes/notes.js', async: true }
+        ]
+      });
+
+      </script>
+
+    </body>
+  </html>
