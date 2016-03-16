@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Moving from Rails Conventions to Legacy</title>
+
+    <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+    <meta name="author" content="Hakim El Hattab">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/black.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+        <section data-background="#3887be">
+          <h1>Moving from Rails Conventions to Legacy</h1>
+          <p>
+            <small>Martín Rodríguez</small>
+          </p>
+
+          <aside class="notes">
+            <p>Rails is known for its convention over configuration design paradigm. For example, database table and column names are automatically derived and generated from the model classes. This is very convenient, but when we want to build a new application upon an existing (“legacy”) database schema we have to explore the configuration side of this paradigm.</p>
+          </aside>
+        </section>
+
+        <section data-background="#56b881" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">Our universe</h2>
+          <img src="img/uml.png" alt="UML Diagram" style="border: none; background: none; box-shadow: none;">
+
+          <aside class="notes">
+            <p>Let's suppose that our universe consists of accounts and contracts. One account has many contract, like we can see on the picture.</p>
+          </aside>
+        </section>
+
+        <section data-background="#56b881" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">Our universe: The Rails Way</h2>
+          <pre style="box-shadow: none;">
+            <code data-trim class="ruby" style="max-height: inherit;">
+# Accounts migration
+class CreateAccounts &lt; ActiveRecord::Migration
+  def change
+    create_table :accounts do |t|
+      t.integer :level, null: false
+      t.string :name, null: false
+      t.timestamps null: false
+    end
+  end
+end
+
+# Contracts migration
+class CreateContracts &lt; ActiveRecord::Migration
+  def change
+    create_table :contracts do |t|
+      t.string :number
+      t.references :account, index: true, foreign_key: true
+
+      t.timestamps null: false
+    end
+  end
+end
+            </code>
+          </pre>
+
+          <aside class="notes">
+            <p>First we need to create active record migrations for our new accounts and contracts tables. The second migration here is for the contracts table, and as we can see it has a foreign key to the accounts table.</p>
+          </aside>
+        </section>
+
+        <section data-background="#56b881" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">Our universe: The Rails Way</h2>
+          <pre style="box-shadow: none;">
+            <code data-trim class="ruby">
+class Account &lt; ActiveRecord::Base
+  has_many :contracts
+end
+
+class Contract &lt; ActiveRecord::Base
+  belongs_to :account
+end
+            </code>
+            <img class="fragment" src="img/e0.png" style="border: none; box-shadow: none; background: none;">
+          </pre>
+
+          <aside class="notes">
+            <p>The models look really simple, they just define the relationships between each other, and this is basically the end of the story!</p>
+          </aside>
+        </section>
+
+        <section data-background="#56b881" style="color: #ffffff;">
+          <img src="img/like_a_boss.jpg" alt="Like A Boss" style="width: 70%; border: none;">
+
+          <aside class="notes">
+          </aside>
+        </section>
+
+        <section data-background="#3bb2d0">
+          <h1 style="color: #ffffff;">Facing LEGACY</h1>
+
+          <aside class="notes">
+            <p>But let's get back to real life and see what happen's when we need to deal with legacy tables, going step by step on each problem we might have.</p>
+          </aside>
+        </section>
+
+        <section data-background="#3887be" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">PROBLEM 1: Different table name</h2>
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="ruby">
+class Account &lt; ActiveRecord::Base
+  self.table_name = "SiteData.dbo.HHTVAccount"
+
+  has_many :contracts
+end
+
+class Contract &lt; ActiveRecord::Base
+  self.table_name = "ProductData.dbo.HHContract"
+
+  belongs_to :account
+end
+            </code>
+            <img class="fragment" src="img/e1.png" style="border: none; box-shadow: none; background: none;">
+          </pre>
+
+          <aside class="notes">
+            <p>First problem we may face: our legacy table has a different name. ActiveRecord won't be able to match each model to each table by the model's name, so we will need to tell each model what table is related to it.</p>
+            <p>We would have to create a migration to reflect this. That's really easy to do, so I'm only going to focus on the Model changes we must do from now on.</p>
+          </aside>
+        </section>
+
+        <section data-background="#8a8acb" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">PROBLEM 2: Different primary key</h2>
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="ruby">
+class Account &lt; ActiveRecord::Base
+  self.table_name = "SiteData.dbo.HHTVAccount"
+  self.primary_key = "DID"
+
+  has_many :contracts
+end
+
+class Contract &lt; ActiveRecord::Base
+  self.table_name = "ProductData.dbo.HHContract"
+  self.primary_key = "DID"
+
+  belongs_to :account
+end
+            </code>
+            <img class="fragment" src="img/e2.png" style="border: none; box-shadow: none; background: none;">
+          </pre>
+
+          <aside class="notes">
+            <p>Now, let's suppose that our tables do not follow the conventions for the primary key column names. We'll have to let each ActiveRecord model know about this as well.</p>
+            <p>For instance, ActiveRecord would expect the primary key column for the accounts to be named account_id, but in legacy it's called DID.</p>
+            <p>Probably, if primary key columns do not follow conventions, foreign key won't as well, so we get to our next problem.</p>
+          </aside>
+        </section>
+
+        <section data-background="#ee8a65" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">PROBLEM 3: Different foreign keys</h2>
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="ruby">
+class Account &lt; ActiveRecord::Base
+  self.table_name = "SiteData.dbo.HHTVAccount"
+  self.primary_key = "DID"
+
+  has_many :contracts, foreign_key: "AccountDID"
+end
+
+class Contract &lt; ActiveRecord::Base
+  self.table_name = "ProductData.dbo.HHContract"
+  self.primary_key = "DID"
+
+  belongs_to :account, foreign_key: "AccountDID"
+end
+            </code>
+            <img class="fragment" src="img/e3.png" style="border: none; box-shadow: none; background: none;">
+          </pre>
+
+          <aside class="notes">
+            <p>So let's suppose that the foreign keys do not follow rails conventions for column names. Then, this will affect our associations.</p>
+            <p>On our case, ActiveRecord would expect the contracts table to have a foreign key called account_id, but in legacy, it's called AccountDID.</p>
+            <p>This means that on our model associations, we need to be explicit on the foreign key name.</p>
+          </aside>
+        </section>
+
+        <section data-background="#3bb2d0" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">PROBLEM 4: Different column names</h2>
+
+          <pre class="fragment" style="box-shadow: none; float: left;">
+            <code data-trim class="ruby" style="max-height: inherit;">
+class Account &lt; ActiveRecord::Base
+  self.table_name = "SiteData.dbo.HHTVAccount"
+  self.primary_key = "DID"
+
+  alias_attribute :name, "AccountName"
+  alias_attribute :level, "AccountLevel"
+
+  has_many :contracts, foreign_key: "AccountDID"
+end
+
+class Contract &lt; ActiveRecord::Base
+  self.table_name = "ProductData.dbo.HHContract"
+  self.primary_key = "DID"
+
+  alias_attribute :number, "ContractNumber"
+
+  belongs_to :account, foreign_key: "AccountDID"
+end
+            </code>
+          </pre>
+
+          <img class="fragment" src="img/e4.png" style="border: none; box-shadow: none; background: none; float: right;">
+
+          <aside class="notes">
+            <p>Primary key and foreign key columns are not the only columns that may not follow rails conventions for column names.</p>
+            <p>However, there is an easy way to create aliases for our model attributes that reference those columns by using the alias_attribute method.</p>
+          </aside>
+        </section>
+
+        <section data-background="#ee6565" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">PROBLEM 5: Already existing timestamps</h2>
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="ruby">
+class Account &lt; ActiveRecord::Base
+  ...
+  alias_attribute :created_at, "CreatedDT"
+  alias_attribute :updated_at, "ModifiedDT"
+
+  before_create { self.created_at = DateTime.current }
+  before_save   { self.updated_at = DateTime.current }
+  ...
+            </code>
+            <img class="fragment" src="img/e5.png" style="border: none; box-shadow: none; background: none;">
+          </pre>
+
+          <aside class="notes">
+            <p>This is one of the less happy things that might happen to use: already existing timestamps on our legacy tables</p>
+            <p>ActiveRecord takes care of the created and updated at timestamps for us out of the box, whenever we modify a resource</p>
+            <p>For these specific two columns, we do not only need to alias them, but also use ActiveRecord callbacks to set them the datetime in which the model was saved.</p>
+            <p>Take into account that the datetime being set here will be the same as when the transaction has been commited.</p>
+          </aside>
+        </section>
+
+        <section data-background="#56b881" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">So far...</h2>
+
+          <pre style="box-shadow: none; margin: 0; float: left; max-width: 49%; font-size: 15px;">
+            <p style="margin: 0;">following conventions</p>
+            <code data-trim class="ruby">
+class Account &lt; ActiveRecord::Base
+  has_many :contracts
+end
+
+class Contract &lt; ActiveRecord::Base
+  belongs_to :account
+end
+            </code>
+          </pre>
+          <pre style="box-shadow: none; margin: 0; float: right; max-width: 50%; font-size: 15px;">
+            <p style="margin: 0;">not following conventions</p>
+            <code data-trim class="ruby" style="max-height: inherit;">
+class Account &lt; ActiveRecord::Base
+  self.table_name = "SiteData.dbo.HHTVAccount"
+  self.primary_key = "DID"
+
+  alias_attribute :name, "AccountName"
+  alias_attribute :level, "AccountLevel"
+  alias_attribute :created_at, "CreatedDT"
+  alias_attribute :updated_at, "ModifiedDT"
+
+  before_create { self.created_at = DateTime.current }
+  before_save   { self.updated_at = DateTime.current }
+
+  has_many :contracts, foreign_key: "AccountDID"
+end
+
+class Contract &lt; ActiveRecord::Base
+  self.table_name = "ProductData.dbo.HHContract"
+  self.primary_key = "DID"
+
+  alias_attribute :number, "ContractNumber"
+  alias_attribute :created_at, "CreatedDT"
+  alias_attribute :updated_at, "ModifiedDT"
+
+  before_create { self.created_at = DateTime.current }
+  before_save   { self.updated_at = DateTime.current }
+
+  belongs_to :account, foreign_key: "AccountDID"
+end
+            </code>
+          </pre>
+
+          <aside class="notes">
+            <p>This is one of the less happy things that might happen to use: already existing timestamps on our legacy tables</p>
+            <p>ActiveRecord takes care of the created and updated at timestamps for us out of the box, whenever we modify a resource</p>
+            <p>For these specific two columns, we do not only need to alias them, but also use ActiveRecord callbacks to set them the datetime in which the model was saved.</p>
+            <p>Take into account that the datetime being set here will be the same as when the transaction has been commited.</p>
+          </aside>
+        </section>
+
+        <section data-background="#8a8acb" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">BONUS TRACK: Translating data</h2>
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="ruby">
+# :(
+account.level = 1203234325
+            </code>
+          </pre>
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="ruby">
+
+# :)
+account.level = :master
+            </code>
+          </pre>
+
+          <aside class="notes">
+            <p>Let's say that the account level can take one of 3 different values, and these values are stored as integers on the database.</p>
+            <p>However, we sould like to use descriptive symbols at the code level, so that we don't have to remember what integer matches a specific value</p>
+          </aside>
+        </section>
+
+        <section data-background="#8a8acb" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">BONUS TRACK: Translating data</h2>
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="ruby" style="max-height: inherit;">
+class Account &lt; ActiveRecord::Base
+  ...
+
+  LEVELS = {
+    basic: 0,
+    master: 1,
+    sub: 2
+  }
+
+  alias_attribute :level, 'AccountLevel'
+
+  validates :level, inclusion: { in: LEVELS.stringify_keys.keys }
+
+  def level
+    LEVELS.key(read_attribute('AccountLevel')).to_s
+  end
+
+  def level=(value)
+    write_attribute('AccountLevel', LEVELS[value.to_sym])
+  end
+
+  ...
+end
+            </code>
+          </pre>
+
+          <aside class="notes">
+            <p>We could achieve this by using ActiveRecord enums, but they are a bit buggy on Rails 4. So we could implement them manually by overriding our getters and setters.</p>
+            <p>We first define a hash that match symbols to their corresponding integer values.</p>
+            <p>Then we define an inclusion validation to check that our level is included on our set of symbols: basic, master or sub.</p>
+            <p>Finally, we override the getter and setter so that we use the integer values at the time we read/write to our databse by using the following ActiveRecord methods: read_attribute and write_attribute</p>
+          </aside>
+        </section>
+
+        <section data-background="#56b881" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">CONCLUSION</h2>
+          <ul>
+            <li class="fragment">If you step outside the happy path of rails conventions be prepared for some inconveniences.</li>
+            <li class="fragment">BUT</li>
+            <li class="fragment">Despite being outside of this path, Rails is so cool that you can still use legacy with few lines of code</li>
+          </ul>
+          <img class="fragment" src="img/e0.png" style="border: none; box-shadow: none; background: none;">
+
+          <aside class="notes">
+            <p>If you step outside the happy path of rails conventions be prepared for some inconveniences.</p>
+            <p>Despite being outside of this path, Rails is so cool that you can still use legacy with few lines of code</p>
+            <p>Those few lines of code even fit on a slide!</p>
+          </aside>
+        </section>
+
+        <section data-background="#ffffff" style="color: #ffffff;">
+          <img src="img/pug-question.jpg" style="border: none; box-shadow: none; background: none; max-width: 70%;">
+
+          <aside class="notes">
+          </aside>
+        </section>
+
+      </div>
+
+      <script src="lib/js/head.min.js"></script>
+      <script src="js/reveal.js"></script>
+
+      <script>
+
+        // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'convex', // none/fade/slide/convex/concave/zoom
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'plugin/zoom-js/zoom.js', async: true },
+          { src: 'plugin/notes/notes.js', async: true }
+        ]
+      });
+
+      </script>
+
+    </body>
+  </html>
