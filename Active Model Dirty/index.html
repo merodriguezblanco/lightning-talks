@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>ActiveModel::Dirty</title>
+
+    <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+    <meta name="author" content="Hakim El Hattab">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/black.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+        <section data-background="#3887be">
+          <h1>ActiveModel::Dirty</h1>
+
+          <p>
+            <small>Martín Rodríguez</small>
+          </p>
+
+          <aside class="notes">
+            <p>Let's talk about an awesome module that gets included by default on our ActiveRecord models. We didn't have the chance to use it yet on our APIs, but it's good to be awared of it's existance!</p>
+          </aside>
+        </section>
+
+        <section data-background="#56b881" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">Our universe</h2>
+
+          <pre style="box-shadow: none;">
+            <code data-trim class="ruby" style="max-height: inherit;">
+# == Schema Information
+#
+# Table name: employees
+#
+#  id         :integer          not null, primary key
+#  name       :string
+#  age        :integer
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
+
+class Employee &lt; ActiveRecord::Base
+end
+            </code>
+          </pre>
+
+          <aside class="notes">
+            <p>Let's suppose that we have an Employee model that we know it's going to change often.</p>
+          </aside>
+        </section>
+
+        <section data-background="#56b881" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">Our intention</h2>
+
+          <p>Keep track of the changes of some of our employee's attributes</p>
+
+          <aside class="notes">
+            <p>Let's say that we have an employee object saved on the database, and we change some of it's attributes without saving the model.</p>
+            <p>We are saying then that our employee object is now dirty, because it's attributes do not match with the saved on the database.</p>
+            <p>What if we want to keep track of those saved attributes while having our dirty object, and at the same time not having to write any custom code or re-accessing the database?</p>
+          </aside>
+        </section>
+
+        <section data-background="#56b881" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">ActiveModel::Dirty</h2>
+
+          <p class="fragment">Allows to Track changes in objects in the same way as Active Record does.</p>
+
+          <aside class="notes">
+            <p>Here's where the module ActiveModel::Dirty comes to the rescue!</p>
+            <p>This module is included on our ActiveRecord models out of the box and is pretty simple to use.</p>
+            <p>Basically what it does is allowing us to track changes in our objects and provides us with some helper methods to get the saved values.</p>
+          </aside>
+        </section>
+
+        <section data-background="#3bb2d0">
+          <h2 style="color: #ffffff;">Examples</h2>
+
+          <div class="fragment">
+            <pre style="box-shadow: none;">
+              <code data-trim class="ruby" style="max-height: inherit;">
+  $: employee = Employee.create name: 'Jerome', age: 28
+
+  (0.2ms)  begin transaction
+  SQL (0.8ms)  INSERT INTO "employees" ("name", "age", "created_at", "updated_at") VALUES (?, ?, ?, ?)  [["name", "Jerome"], ["age", 28], ["created_at", "2016-04-07 01:22:06.802604"], ["updated_at", "2016-04-07 01:22:06.802604"]]
+  (2.5ms)  commit transaction
+
+  =&gt; #&lt;Employee id: 1, name: "Jerome", age: 28, created_at: "2016-04-07 01:22:06", updated_at: "2016-04-07 01:22:06"&gt;
+              </code>
+            </pre>
+            <img src="img/employee.png" alt="Employee" style ="box-shadow: none; border: none; background: none;">
+          </div>
+
+          <aside class="notes">
+            <p>So, let's jump into some examples. Let's open a rails console and start by creating a new Employee.</p>
+          </aside>
+        </section>
+
+        <section data-background="#3bb2d0">
+          <h2 style="color: #ffffff;">Did the employee change?</h2>
+
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="ruby" style="max-height: inherit;">
+$: employee.changed?
+=&gt; false
+            </code>
+          </pre>
+
+          <div class="fragment">
+            <pre style="box-shadow: none;">
+              <code data-trim class="ruby" style="max-height: inherit;">
+$: employee.name = "Remington"
+=&gt; "Remington"
+
+$: employee.changed?
+=&gt; true
+              </code>
+            </pre>
+
+            <img src="img/dirty.gif" alt="Dirty employee" style="box-shadow: none; border: none; background: none;">
+          </div>
+
+          <aside class="notes">
+            <p>Let's go through some of the helper methods we have available.</p>
+            <p>For instance, did our employee changed after being created?</p>
+            <p>It didn't, let's dirty our employee by changing his name without saving and ask again!</p>
+          </aside>
+        </section>
+
+        <section data-background="#3bb2d0">
+          <h2 style="color: #ffffff;">Metaprogrammed helpers</h2>
+
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="ruby" style="max-height: inherit;">
+$: employee.name_changed?
+=&gt; true
+            </code>
+          </pre>
+
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="ruby" style="max-height: inherit;">
+$: employee.name_changed? from: "Jerome", to: "Remington"
+=&gt; true
+            </code>
+          </pre>
+
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="ruby" style="max-height: inherit;">
+$: employee.name_was
+=&gt; "Jerome"
+            </code>
+          </pre>
+
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="ruby" style="max-height: inherit;">
+$: employee.name = "Abelino"
+=&gt; "Abelino"
+
+$: employee.name_change
+=&gt; ["Jerome", "Abelino"]
+            </code>
+          </pre>
+
+          <aside class="notes">
+            <p>We now know that our employee object is dirty. But what if we want to be more specific and check for an attribute?</p>
+            <p>The Dirty module provides some metaprogrammed methods, for example:</p>
+            <ul>
+              <li>We can check if the name changed by calling the name_changed? method</li>
+              <li>We can be even more specific and ask for values from and to.</li>
+              <li>We can ask for the previous saved name calling the name_was method</li>
+              <li>Finally, we could call name_change method and get the previous saved name and the new one as an array.</li>
+            </ul>
+          </aside>
+        </section>
+
+        <section data-background="#3bb2d0">
+          <h2 style="color: #ffffff;">Let's save!</h2>
+
+          <pre class="fragment" style="box-shadow: none; font-size: 16px;">
+            <code data-trim class="ruby" style="max-height: inherit;">
+$: employee.save
+(0.1ms)  begin transaction
+SQL (0.3ms)  UPDATE "employees" SET "name" = ?, "updated_at" = ? WHERE "employees"."id" = ?  [["name", "Abelino"], ["updated_at", "2016-04-07 02:15:37.587128"], ["id", 3]]
+(0.6ms)  commit transaction
+=&gt; true
+
+$: employee.changed?
+=&gt; false
+
+$: employee.name_changed?
+=&gt; false
+            </code>
+          </pre>
+
+          <pre class="fragment" style="box-shadow: none; font-size: 16px;">
+            <code data-trim class="ruby" style="max-height: inherit;">
+$: employee.previous_changes
+=&gt; {"name"=&gt;["Jerome", "Abelino"], "updated_at"=&gt;[Thu, 07 Apr 2016 02:15:25 UTC +00:00, Thu, 07 Apr 2016 02:15:37 UTC +00:00]}
+            </code>
+          </pre>
+
+          <pre class="fragment" style="box-shadow: none; font-size: 16px;">
+            <code data-trim class="ruby" style="max-height: inherit;">
+$: employee.reload
+Employee Load (0.2ms)  SELECT  "employees".* FROM "employees" WHERE "employees"."id" = ? LIMIT 1  [["id", 3]]
+=&gt; #&lt;Employee id: 3, name: "Abelino", age: 28, created_at: "2016-04-07 02:15:25", updated_at: "2016-04-07 02:15:37"&gt;
+
+$: employee.previous_changes
+=&gt; {}
+            </code>
+          </pre>
+
+          <aside class="notes">
+            <p>What if we now try saving our latest changes and asking again if our employee object is dirty? It should not have changed, because it's not dirty anymore.</p>
+            <p>We still have a way of asking for it's previous changes before saving.</p>
+            <p>However, if we try reloading the model, and this means reading it from the database again, then we will lose track of the previous changes</p>
+          </aside>
+        </section>
+
+        <section data-background="#3bb2d0">
+          <h2 style="color: #ffffff;">Restoring</h2>
+
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="ruby" style="max-height: inherit;">
+$: employee
+ =&gt; #&lt;Employee id: 3, name: "Abelino", age: 28, created_at: "2016-04-07 02:15:25", updated_at: "2016-04-07 02:15:37"&gt;
+
+$: employee.name = "Martin"
+ =&gt; "Martin"
+
+$: employee.age = 20
+ =&gt; 20
+            </code>
+          </pre>
+
+          <pre class="fragment" style="box-shadow: none;">
+            <code data-trim class="ruby" style="max-height: inherit;">
+$: employee.restore_attributes
+=&gt; ["name", "age"]
+
+$: employee
+=&gt; #&lt;Employee id: 3, name: "Abelino", age: 28, created_at: "2016-04-07 02:15:25", updated_at: "2016-04-07 02:15:37"&gt;
+            </code>
+          </pre>
+
+          <aside class="notes">
+            <p>For our last example, let's suppose that we have changed some attributes on our employee but didn't save it yet.</p>
+            <p>So, our employee is now dirty, and we would like to restore it's previous attributes without having to reload it from the database. Then, we could call the restore_attributes method</p>
+          </aside>
+        </section>
+
+
+        <section data-background="#3887be" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">Ruby classes</h2>
+
+          <pre class="fragment" style="box-shadow: none; font-size: 16px;">
+            <code data-trim class="ruby">
+class Employee
+  include ActiveModel::Dirty
+
+  define_attribute_methods :name
+
+  def initialize(name)
+    @name = name
+  end
+
+  def name
+    @name
+  end
+
+  def name=(val)
+    name_will_change! unless val == @name
+    @name = val
+  end
+
+  def save
+    # do persistence work
+    changes_applied
+  end
+
+  def reload
+    # get the values from the persistence layer
+    clear_changes_information
+  end
+end
+            </code>
+          </pre>
+
+          <aside class="notes">
+            <p>This Dirty module looks pretty helpful. However, we are using here for ActiveRecord modules.
+            <p>A couple of slides back, remember we said that the Dirty module allows us to track changes in our object in the same way as Active Record does.</p>
+            <p>This means that we could include this module on a plain ruby class and use it for the same purposes.</p>
+            <p>In that case, we'll need to implement some methods that this module provides. Let's then suppose that our Employee is not a model but a class, and let's do a minimal implementation that allows us to use Dirty.</p>
+          </aside>
+        </section>
+
+        <section data-background="#8a8acb" style="color: #ffffff;">
+          <h2 style="color: #ffffff;">References</h2>
+
+          <ul>
+            <li><a style="color: #ffffff;" href="http://apidock.com/rails/ActiveModel/Dirty" target="_blank">API Dock</a></li>
+            <li><a style="color: #ffffff;" href="http://api.rubyonrails.org/classes/ActiveModel/Dirty.html" target="_blank">API Ruby on Rails</a></li>
+          </ul>
+
+          <aside class="notes">
+          </aside>
+        </section>
+
+      </div>
+
+      <script src="lib/js/head.min.js"></script>
+      <script src="js/reveal.js"></script>
+
+      <script>
+
+        // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'convex', // none/fade/slide/convex/concave/zoom
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'plugin/zoom-js/zoom.js', async: true },
+          { src: 'plugin/notes/notes.js', async: true }
+        ]
+      });
+
+      </script>
+
+    </body>
+  </html>
